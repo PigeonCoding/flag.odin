@@ -1,4 +1,5 @@
 # a flag parsing single file lib for odin
+this is meant to be a simple alternative for odin's flag parser
 
 ## how to install
 ### in same directory
