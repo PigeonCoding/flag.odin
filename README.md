@@ -1,5 +1,5 @@
 # a flag parsing single file lib for odin
-this is meant to be a simple alternative for odin's flag parser
+this is meant to be a simple alternative for [odin's flag parser](https://pkg.odin-lang.org/core/flags/)
 
 ## how to install
 ### in same directory
@@ -34,7 +34,6 @@ example: add_flag() -> flag.add_flags()
   }
 
   print_usage()
-
 
 ```
 ```console
