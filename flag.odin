@@ -1,3 +1,4 @@
+// v0.1 from https://github.com/PigeonCoding/flag.odin
 package flag
 
 import "core:fmt"
