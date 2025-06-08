@@ -4,9 +4,9 @@ import "core:fmt"
 
 main :: proc() {
 
-  add_flag("name", "", "give your name")
-  add_flag("age", 0, "give your age")
-  add_flag("single", false, "are you single?")
+  add_flag("name", "", "give your name") // string
+  add_flag("age", 0, "give your age") // int
+  add_flag("single", false, "are you single?") // bool
 
   fl, remaining := check_flags()
 
