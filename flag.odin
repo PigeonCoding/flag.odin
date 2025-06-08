@@ -10,27 +10,36 @@ flag_val_types :: union {
   string,
   bool,
 }
+
 flag_t :: struct {
   flag:        string,
   value:       flag_val_types,
   description: string,
 }
-flag_list: [dynamic]flag_t
 
-add_flag :: proc(flag_name: string, initial_val: flag_val_types, description: string) {
+flag_container :: struct {
+  private_flag_list: [dynamic]flag_t,
+  parsed_flags:      []^flag_t,
+  remaining:         []string,
+}
+
+add_flag :: proc(
+  container: ^flag_container,
+  flag_name: string,
+  initial_val: flag_val_types,
+  description: string,
+) {
   t: flag_t
   t.flag = flag_name
   t.value = initial_val
   t.description = description
 
-  append(&flag_list, t)
+  append(&container.private_flag_list, t)
 }
-// execute that before any kind of check on args, it will return any unused args for you to handle
-// including program name
-check_flags :: proc() -> (found: []^flag_t, remaining_args: []string) {
-  // let the user delete it when they feel like it
+
+// (this function does not modify os.args)
+check_flags :: proc(container: ^flag_container) {
   ff: [dynamic]^flag_t
-  // TODO: maybe find a better way?
   rem: [dynamic]string
 
   arg_i := 0
@@ -41,7 +50,7 @@ check_flags :: proc() -> (found: []^flag_t, remaining_args: []string) {
     }
 
     if strings.starts_with(os.args[arg_i], "-") {
-      for &f in flag_list {
+      for &f in container.private_flag_list {
         if os.args[arg_i][1:] == f.flag {
           yes := false
           switch v in f.value {
@@ -74,28 +83,36 @@ check_flags :: proc() -> (found: []^flag_t, remaining_args: []string) {
     append(&rem, os.args[i])
   }
 
-  return ff[:], rem[:]
+  container.parsed_flags = ff[:]
+  container.remaining = rem[:]
 }
-print_usage :: proc() {
+
+print_usage :: proc(container: ^flag_container) {
   max_len := 0
 
-  for f in flag_list {
+  for f in container.private_flag_list {
     if len(f.flag) > max_len {
       max_len = len(f.flag)
     }
   }
 
-  for f in flag_list {
+  for f in container.private_flag_list {
     t: string
     switch v in f.value {
     case int:
-      t = "(int)   :"
+      t = "(int)   "
     case bool:
-      t = "(bool)  :"
+      t = "(bool)  "
     case string:
-      t = "(string):"
+      t = "(string)"
     }
 
-    fmt.printfln("%*.s%s {}", max_len, f.flag, t, f.description)
+    fmt.printfln("%-*.s: {}", max_len + 1 + 9, strings.concatenate({"-", f.flag, t}), f.description)
   }
+}
+
+free_flag_container :: proc(container: ^flag_container) {
+  delete(container.private_flag_list)
+  delete(container.parsed_flags)
+  delete(container.remaining)
 }

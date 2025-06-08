@@ -1,5 +1,5 @@
 # a flag parsing single file lib for odin
-this is meant to be a simple alternative for [odin's flag parser](https://pkg.odin-lang.org/core/flags/)
+this is meant to be a simple alternative to [odin's flag parser](https://pkg.odin-lang.org/core/flags/)
 
 ## how to install
 ### in same directory
@@ -16,13 +16,22 @@ example: add_flag() -> flag.add_flags()
 ## usage
 [example.odin](https://github.com/PigeonCoding/flag.odin/blob/master/example.odin) 
 ```odin
-  add_flag("name", "", "give your name")
-  add_flag("age", 0, "give your age")
-  add_flag("single", false, "are you single?")
+  f_container: flag_container
 
-  fl, remaining := check_flags()
+  add_flag(&f_container, "name", "", "give your name") // string
+  add_flag(&f_container, "age", 0, "give your age") // int
+  add_flag(&f_container, "single", false, "are you single?") // bool
 
-  for l in fl {
+  
+  if len(os.args) == 1 {
+    fmt.println("usage", os.args[0])
+    print_usage(&f_container)
+    os.exit(1)
+  }
+  
+  check_flags(&f_container)
+
+  for l in f_container.parsed_flags {
     switch l.flag {
     case "name":
       fmt.println("your name is", l.value)
@@ -33,10 +42,11 @@ example: add_flag() -> flag.add_flags()
     }
   }
 
-  print_usage()
+  fmt.println("remaining args:", f_container.remaining)
 
+  free_flag_container(&f_container)
 ```
 ```console
 $ odin build . -out:example
-$ ./example -age 69 -name pigeon -single
+$ ./example -age 69 -name pigeon -single --- other
 ```
