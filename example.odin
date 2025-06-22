@@ -11,25 +11,25 @@ main :: proc() {
   add_flag(&f_container, "age", 0, "give your age") // int
   add_flag(&f_container, "single", false, "are you single?") // bool
 
-  
   if len(os.args) == 1 {
     fmt.println("usage", os.args[0])
     print_usage(&f_container)
     os.exit(1)
   }
-  
+
+  init_container(&f_container)
   check_flags(&f_container)
+
   fmt.println("-----------------")
-  for l in f_container.parsed_flags {
-    switch l.flag {
-    case "name":
-      fmt.println("your name is", l.value)
-    case "age":
-      fmt.println("your age is", l.value)
-    case "single":
-      fmt.println("you are single")
-    }
-  }
+  fmt.println("method 2:")
+  
+  name: ^string = auto_cast get_flag_value(&f_container, "name")
+  age: ^int = auto_cast get_flag_value(&f_container, "age")
+  single: ^bool = auto_cast get_flag_value(&f_container, "single")
+  
+  if name != nil do fmt.println("your name is", name^)
+  if age != nil do fmt.println("your age is", age^)
+  if single != nil do fmt.println("you are single")
 
   fmt.println("-----------------")
   fmt.println("remaining args:", f_container.remaining)
